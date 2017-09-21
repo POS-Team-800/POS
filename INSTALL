@@ -1,0 +1,9 @@
+Building POS
+
+See doc/readme-qt.rst for instructions on building POS QT,
+the intended-for-end-users, nice-graphical-interface, reference
+implementation of POS.
+
+See doc/build-*.txt for instructions on building posd,
+the intended-for-services, no-graphical-interface, reference
+implementation of POS.
