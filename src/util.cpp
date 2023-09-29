@@ -1072,6 +1072,7 @@ void createConf()
             + randomStrGen(15)
             + "\np2pport=21033"
             + "\nrpcport=21034"
+            + "\ndaemon=1"            
             + "\n#(0=off, 1=on) staking - turn staking on or off"
             + "\nstaking=1"
             + "\nrpcallowip=127.0.0.1";
