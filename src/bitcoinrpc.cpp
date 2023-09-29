@@ -109,6 +109,10 @@ Value ValueFromAmount(int64_t amount)
     return (double)amount / (double)COIN;
 }
 
+Value ValueFromBigNumAmount(CBigNum amount)
+{
+    return (double)amount.getuint256().getdouble() / (double)COIN;
+}
 
 //
 // Utilities: convert hex-encoded Values

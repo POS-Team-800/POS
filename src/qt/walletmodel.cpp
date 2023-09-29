@@ -38,22 +38,22 @@ WalletModel::~WalletModel()
 
 qint64 WalletModel::getBalance() const
 {
-    return wallet->GetBalance();
+    return wallet->GetBalance().getuint64();
 }
 
 qint64 WalletModel::getUnconfirmedBalance() const
 {
-    return wallet->GetUnconfirmedBalance();
+    return wallet->GetUnconfirmedBalance().getuint64();
 }
 
 qint64 WalletModel::getStake() const
 {
-    return wallet->GetStake();
+    return wallet->GetStake().getuint64();
 }
 
 qint64 WalletModel::getImmatureBalance() const
 {
-    return wallet->GetImmatureBalance();
+    return wallet->GetImmatureBalance().getuint64();
 }
 
 int WalletModel::getNumTransactions() const
