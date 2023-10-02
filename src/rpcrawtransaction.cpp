@@ -74,7 +74,7 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, Object& entry)
     {
         const CTxOut& txout = tx.vout[i];
         Object out;
-        out.push_back(Pair("value", ValueFromAmount(txout.nValue)));
+        out.push_back(Pair("value", ValueFromBigNumAmount(txout.nValue)));
         out.push_back(Pair("n", (int64_t)i));
         Object o;
         ScriptPubKeyToJSON(txout.scriptPubKey, o, false);
@@ -204,7 +204,7 @@ Value listunspent(const Array& params, bool fHelp)
                 entry.push_back(Pair("account", pwalletMain->mapAddressBook[address]));
         }
         entry.push_back(Pair("scriptPubKey", HexStr(pk.begin(), pk.end())));
-        entry.push_back(Pair("amount",ValueFromAmount(nValue)));
+        entry.push_back(Pair("amount",ValueFromBigNumAmount(nValue)));
         entry.push_back(Pair("confirmations",out.nDepth));
         results.push_back(entry);
     }

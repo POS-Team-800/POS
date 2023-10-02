@@ -85,12 +85,12 @@ Value getinfo(const Array& params, bool fHelp)
     obj.push_back(Pair("version",       FormatFullVersion()));
     obj.push_back(Pair("protocolversion",(int)PROTOCOL_VERSION));
     obj.push_back(Pair("walletversion", pwalletMain->GetVersion()));
-    obj.push_back(Pair("balance",       ValueFromAmount(pwalletMain->GetBalance())));
-    obj.push_back(Pair("newmint",       ValueFromAmount(pwalletMain->GetNewMint())));
-    obj.push_back(Pair("stake",         ValueFromAmount(pwalletMain->GetStake())));
+    obj.push_back(Pair("balance",       ValueFromBigNumAmount(pwalletMain->GetBalance())));
+    obj.push_back(Pair("newmint",       ValueFromBigNumAmount(pwalletMain->GetNewMint())));
+    obj.push_back(Pair("stake",         ValueFromBigNumAmount(pwalletMain->GetStake())));
     obj.push_back(Pair("blocks",        (int)nBestHeight));
     obj.push_back(Pair("timeoffset",    (int64_t)GetTimeOffset()));
-    obj.push_back(Pair("moneysupply",   ValueFromAmount(pindexBest->nMoneySupply)));
+    obj.push_back(Pair("moneysupply",   ValueFromBigNumAmount(pindexBest->nMoneySupply)));
     obj.push_back(Pair("connections",   (int)vNodes.size()));
     obj.push_back(Pair("proxy",         (proxy.first.IsValid() ? proxy.first.ToStringIPPort() : string())));
     obj.push_back(Pair("ip",            addrSeenByPeer.ToStringIP()));
@@ -102,8 +102,8 @@ Value getinfo(const Array& params, bool fHelp)
     obj.push_back(Pair("testnet",       fTestNet));
     obj.push_back(Pair("keypoololdest", (int64_t)pwalletMain->GetOldestKeyPoolTime()));
     obj.push_back(Pair("keypoolsize",   (int)pwalletMain->GetKeyPoolSize()));
-    obj.push_back(Pair("paytxfee",      ValueFromAmount(nTransactionFee)));
-    obj.push_back(Pair("mininput",      ValueFromAmount(nMinimumInputValue)));
+    obj.push_back(Pair("paytxfee",      ValueFromBigNumAmount(nTransactionFee)));
+    obj.push_back(Pair("mininput",      ValueFromBigNumAmount(nMinimumInputValue)));
     if (pwalletMain->IsCrypted())
         obj.push_back(Pair("unlocked_until", (int64_t)nWalletUnlockTime / 1000));
     obj.push_back(Pair("errors",        GetWarnings("statusbar")));
@@ -345,7 +345,7 @@ Value listaddressgroupings(const Array& params, bool fHelp)
         {
             Array addressInfo;
             addressInfo.push_back(CBitcoinAddress(address).ToString());
-            addressInfo.push_back(ValueFromAmount(balances[address]));
+            addressInfo.push_back(ValueFromBigNumAmount(balances[address]));
             {
                 LOCK(pwalletMain->cs_wallet);
                 if (pwalletMain->mapAddressBook.find(CBitcoinAddress(address).Get()) != pwalletMain->mapAddressBook.end())
@@ -465,7 +465,7 @@ Value getreceivedbyaddress(const Array& params, bool fHelp)
                     nAmount += txout.nValue;
     }
 
-    return  ValueFromAmount(nAmount);
+    return  ValueFromBigNumAmount(nAmount);
 }
 
 
@@ -520,9 +520,9 @@ Value getreceivedbyaccount(const Array& params, bool fHelp)
 }
 
 
-int64_t GetAccountBalance(CWalletDB& walletdb, const string& strAccount, int nMinDepth)
+CBigNum GetAccountBalance(CWalletDB& walletdb, const string& strAccount, int nMinDepth)
 {
-    int64_t nBalance = 0;
+    CBigNum nBalance(0);
 
     // Tally wallet transactions
     for (map<uint256, CWalletTx>::iterator it = pwalletMain->mapWallet.begin(); it != pwalletMain->mapWallet.end(); ++it)
@@ -545,7 +545,7 @@ int64_t GetAccountBalance(CWalletDB& walletdb, const string& strAccount, int nMi
     return nBalance;
 }
 
-int64_t GetAccountBalance(const string& strAccount, int nMinDepth)
+CBigNum GetAccountBalance(const string& strAccount, int nMinDepth)
 {
     CWalletDB walletdb(pwalletMain->strWalletFile);
     return GetAccountBalance(walletdb, strAccount, nMinDepth);
@@ -561,7 +561,7 @@ Value getbalance(const Array& params, bool fHelp)
             "If [account] is specified, returns the balance in the account.");
 
     if (params.size() == 0)
-        return  ValueFromAmount(pwalletMain->GetBalance());
+        return  ValueFromBigNumAmount(pwalletMain->GetBalance());
 
     int nMinDepth = 1;
     if (params.size() > 1)
@@ -571,7 +571,7 @@ Value getbalance(const Array& params, bool fHelp)
         // Calculate total balance a different way from GetBalance()
         // (GetBalance() sums up all unspent TxOuts)
         // getbalance and getbalance '*' 0 should return the same number.
-        int64_t nBalance = 0;
+        CBigNum nBalance(0);
         for (map<uint256, CWalletTx>::iterator it = pwalletMain->mapWallet.begin(); it != pwalletMain->mapWallet.end(); ++it)
         {
             const CWalletTx& wtx = (*it).second;
@@ -592,16 +592,17 @@ Value getbalance(const Array& params, bool fHelp)
                 nBalance -= r.second;
             nBalance -= allFee;
         }
-        return  ValueFromAmount(nBalance);
+        return  ValueFromBigNumAmount(nBalance);
     }
 
     accountingDeprecationCheck();
 
     string strAccount = AccountFromValue(params[0]);
 
-    int64_t nBalance = GetAccountBalance(strAccount, nMinDepth);
+    CBigNum nBalance(0);
+    nBalance = GetAccountBalance(strAccount, nMinDepth);
 
-    return ValueFromAmount(nBalance);
+    return ValueFromBigNumAmount(nBalance);
 }
 
 
@@ -686,7 +687,7 @@ Value sendfrom(const Array& params, bool fHelp)
     EnsureWalletIsUnlocked();
 
     // Check funds
-    int64_t nBalance = GetAccountBalance(strAccount, nMinDepth);
+    CBigNum nBalance = GetAccountBalance(strAccount, nMinDepth);
     if (nAmount > nBalance)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Account has insufficient funds");
 
@@ -744,7 +745,7 @@ Value sendmany(const Array& params, bool fHelp)
     EnsureWalletIsUnlocked();
 
     // Check funds
-    int64_t nBalance = GetAccountBalance(strAccount, nMinDepth);
+    CBigNum nBalance = GetAccountBalance(strAccount, nMinDepth);
     if (totalAmount > nBalance)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Account has insufficient funds");
 
@@ -937,7 +938,7 @@ Value ListReceived(const Array& params, bool fByAccounts)
             Object obj;
             obj.push_back(Pair("address",       address.ToString()));
             obj.push_back(Pair("account",       strAccount));
-            obj.push_back(Pair("amount",        ValueFromAmount(nAmount)));
+            obj.push_back(Pair("amount",        ValueFromBigNumAmount(nAmount)));
             obj.push_back(Pair("confirmations", (nConf == std::numeric_limits<int>::max() ? 0 : nConf)));
             ret.push_back(obj);
         }
@@ -951,7 +952,7 @@ Value ListReceived(const Array& params, bool fByAccounts)
             int nConf = (*it).second.nConf;
             Object obj;
             obj.push_back(Pair("account",       (*it).first));
-            obj.push_back(Pair("amount",        ValueFromAmount(nAmount)));
+            obj.push_back(Pair("amount",        ValueFromBigNumAmount(nAmount)));
             obj.push_back(Pair("confirmations", (nConf == std::numeric_limits<int>::max() ? 0 : nConf)));
             ret.push_back(obj);
         }
@@ -1020,8 +1021,8 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
             entry.push_back(Pair("account", strSentAccount));
             MaybePushAddress(entry, s.first);
             entry.push_back(Pair("category", "send"));
-            entry.push_back(Pair("amount", ValueFromAmount(-s.second)));
-            entry.push_back(Pair("fee", ValueFromAmount(-nFee)));
+            entry.push_back(Pair("amount", ValueFromBigNumAmount(-s.second)));
+            entry.push_back(Pair("fee", ValueFromBigNumAmount(-nFee)));
             if (fLong)
                 WalletTxToJSON(wtx, entry);
             ret.push_back(entry);
@@ -1056,10 +1057,10 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                     entry.push_back(Pair("category", "receive"));
                 }
                 if (!wtx.IsCoinStake())
-                    entry.push_back(Pair("amount", ValueFromAmount(r.second)));
+                    entry.push_back(Pair("amount", ValueFromBigNumAmount(r.second)));
                 else
                 {
-                    entry.push_back(Pair("amount", ValueFromAmount(-nFee)));
+                    entry.push_back(Pair("amount", ValueFromBigNumAmount(-nFee)));
                     stop = true; // only one coinstake output
                 }
                 if (fLong)
@@ -1082,7 +1083,7 @@ void AcentryToJSON(const CAccountingEntry& acentry, const string& strAccount, Ar
         entry.push_back(Pair("account", acentry.strAccount));
         entry.push_back(Pair("category", "move"));
         entry.push_back(Pair("time", (int64_t)acentry.nTime));
-        entry.push_back(Pair("amount", ValueFromAmount(acentry.nCreditDebit)));
+        entry.push_back(Pair("amount", ValueFromBigNumAmount(acentry.nCreditDebit)));
         entry.push_back(Pair("otheraccount", acentry.strOtherAccount));
         entry.push_back(Pair("comment", acentry.strComment));
         ret.push_back(entry);
@@ -1197,7 +1198,7 @@ Value listaccounts(const Array& params, bool fHelp)
 
     Object ret;
     BOOST_FOREACH(const PAIRTYPE(string, int64_t)& accountBalance, mapAccountBalances) {
-        ret.push_back(Pair(accountBalance.first, ValueFromAmount(accountBalance.second)));
+        ret.push_back(Pair(accountBalance.first, ValueFromBigNumAmount(accountBalance.second)));
     }
     return ret;
 }
@@ -1288,9 +1289,9 @@ Value gettransaction(const Array& params, bool fHelp)
         int64_t nNet = nCredit - nDebit;
         int64_t nFee = (wtx.IsFromMe() ? wtx.GetValueOut() - nDebit : 0);
 
-        entry.push_back(Pair("amount", ValueFromAmount(nNet - nFee)));
+        entry.push_back(Pair("amount", ValueFromBigNumAmount(nNet - nFee)));
         if (wtx.IsFromMe())
-            entry.push_back(Pair("fee", ValueFromAmount(nFee)));
+            entry.push_back(Pair("fee", ValueFromBigNumAmount(nFee)));
 
         WalletTxToJSON(wtx, entry);
 
@@ -1691,7 +1692,7 @@ Value reservebalance(const Array& params, bool fHelp)
 
     Object result;
     result.push_back(Pair("reserve", (nReserveBalance > 0)));
-    result.push_back(Pair("amount", ValueFromAmount(nReserveBalance)));
+    result.push_back(Pair("amount", ValueFromBigNumAmount(nReserveBalance)));
     return result;
 }
 
@@ -1713,7 +1714,7 @@ Value checkwallet(const Array& params, bool fHelp)
     else
     {
         result.push_back(Pair("mismatched spent coins", nMismatchSpent));
-        result.push_back(Pair("amount in question", ValueFromAmount(nBalanceInQuestion)));
+        result.push_back(Pair("amount in question", ValueFromBigNumAmount(nBalanceInQuestion)));
     }
     return result;
 }
@@ -1736,7 +1737,7 @@ Value repairwallet(const Array& params, bool fHelp)
     else
     {
         result.push_back(Pair("mismatched spent coins", nMismatchSpent));
-        result.push_back(Pair("amount affected by repair", ValueFromAmount(nBalanceInQuestion)));
+        result.push_back(Pair("amount affected by repair", ValueFromBigNumAmount(nBalanceInQuestion)));
     }
     return result;
 }

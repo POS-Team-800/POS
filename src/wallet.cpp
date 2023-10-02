@@ -1018,9 +1018,9 @@ void CWallet::ResendWalletTransactions(bool fForce)
 //
 
 
-int64_t CWallet::GetBalance() const
+CBigNum CWallet::GetBalance() const
 {
-    int64_t nTotal = 0;
+    CBigNum nTotal(0);
     {
         LOCK2(cs_main, cs_wallet);
         for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
@@ -1034,9 +1034,9 @@ int64_t CWallet::GetBalance() const
     return nTotal;
 }
 
-int64_t CWallet::GetUnconfirmedBalance() const
+CBigNum CWallet::GetUnconfirmedBalance() const
 {
-    int64_t nTotal = 0;
+    CBigNum nTotal(0);
     {
         LOCK2(cs_main, cs_wallet);
         for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
@@ -1049,9 +1049,9 @@ int64_t CWallet::GetUnconfirmedBalance() const
     return nTotal;
 }
 
-int64_t CWallet::GetImmatureBalance() const
+CBigNum CWallet::GetImmatureBalance() const
 {
-    int64_t nTotal = 0;
+    CBigNum nTotal(0);
     {
         LOCK2(cs_main, cs_wallet);
         for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
@@ -1175,9 +1175,9 @@ static void ApproximateBestSubset(vector<pair<int64_t, pair<const CWalletTx*,uns
 }
 
 // ppcoin: total coins staked (non-spendable until maturity)
-int64_t CWallet::GetStake() const
+CBigNum CWallet::GetStake() const
 {
-    int64_t nTotal = 0;
+    CBigNum nTotal(0);
     LOCK2(cs_main, cs_wallet);
     for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
     {
@@ -1188,9 +1188,9 @@ int64_t CWallet::GetStake() const
     return nTotal;
 }
 
-int64_t CWallet::GetNewMint() const
+CBigNum CWallet::GetNewMint() const
 {
-    int64_t nTotal = 0;
+    CBigNum nTotal(0);
     LOCK2(cs_main, cs_wallet);
     for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
     {
@@ -1271,7 +1271,7 @@ bool CWallet::SelectCoinsMinConf(int64_t nTargetValue, unsigned int nSpendTime, 
     // Solve subset sum by stochastic approximation
     sort(vValue.rbegin(), vValue.rend(), CompareValueOnly());
     vector<char> vfBest;
-    int64_t nBest;
+    int64_t nBest = 0;
 
     ApproximateBestSubset(vValue, nTotalLower, nTargetValue, vfBest, nBest, 1000);
     if (nBest != nTargetValue && nTotalLower >= nTargetValue + CENT)
@@ -1505,14 +1505,14 @@ bool CWallet::CreateTransaction(CScript scriptPubKey, int64_t nValue, CWalletTx&
 bool CWallet::GetStakeWeight(const CKeyStore& keystore, uint64_t& nMinWeight, uint64_t& nMaxWeight, uint64_t& nWeight)
 {
     // Choose coins to use
-    int64_t nBalance = GetBalance();
+    int64_t nBalance = GetBalance().getuint64();
 
     if (nBalance <= nReserveBalance)
         return false;
 
     vector<const CWalletTx*> vwtxPrev;
 
-    set<pair<const CWalletTx*,unsigned int> > setCoins;
+    set<pair<const CWalletTx*, unsigned int> > setCoins;
     int64_t nValueIn = 0;
 
     if (!SelectCoinsForStaking(nBalance - nReserveBalance, GetTime(), setCoins, nValueIn))
@@ -1573,7 +1573,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     txNew.vout.push_back(CTxOut(0, scriptEmpty));
 
     // Choose coins to use
-    int64_t nBalance = GetBalance();
+    int64_t nBalance = GetBalance().getuint64();
 
     if (nBalance <= nReserveBalance)
         return false;
