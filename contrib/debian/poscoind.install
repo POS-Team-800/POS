@@ -1,0 +1,2 @@
+debian/bin/posd usr/bin
+src/posd usr/lib/poscoin

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=PosCoin
+Comment=PosCoin P2P Cryptocurrency
+Comment[fr]=PosCoin, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=PosCoin, eşten eşe kriptografik sanal para birimi
+Exec=/usr/bin/poscoin-qt
+Terminal=false
+Type=Application
+Icon=/usr/share/pixmaps/bitcoin80.xpm
+MimeType=x-scheme-handler/poscoin;
+Categories=Office;
