@@ -59,5 +59,5 @@ We aim to deliver a blockchain platform that provides users with superior speed,
       
 **3. Last news POSCoin?**
 
-   - [coinpaprika.com](https://readme/coin/pos-proof-of-stake-coin) We are applying for MarketCapital self-reporting dashboard. 
+   - [coinpaprika.com](https://coinpaprika.com/coin/pos-proof-of-stake-coin/) We are applying for MarketCapital self-reporting dashboard. 
 
