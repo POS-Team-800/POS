@@ -56,4 +56,4 @@ We aim to deliver a blockchain platform that provides users with superior speed,
    - [Twiter   : https://twitter.com/scoin800](https://twitter.com/scoin800)
    - [Telegram : https://t.me/ROI_800_POSCOIN](https://t.me/ROI_800_POSCOIN)   
    - [Forum    : https://bitcoingarden.org/forum/index.php?topic=51944.0](https://bitcoingarden.org/forum/index.php?topic=51944.0)
-   - [coinpaprika.com  : https://coinpaprika.com/coin/pos-proof-of-stake-coin](https://coinpaprika.com/coin/pos-proof-of-stake-coin)
+   - [Coinpaprika  : https://coinpaprika.com/coin/pos-proof-of-stake-coin](https://coinpaprika.com/coin/pos-proof-of-stake-coin)
