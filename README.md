@@ -51,13 +51,10 @@ We aim to deliver a blockchain platform that provides users with superior speed,
   - iPhone/iPad (iOS) (coming soon)
 
 **2. Where can I learn more about POSCoin?**
-   - [Website](https://poscoin.community)
-   - [Discord](https://POSCoin.gg/PQTYqSS8gK)
-   - [Twiter](https://twitter.com/scoin800)
-   - [Telegram](https://t.me/ROI_800_POSCOIN)   
-   - [Forum](https://bitcoingarden.org/forum/index.php?topic=51944.0)
-      
-**3. Last news POSCoin?**
-
-   - [coinpaprika.com](https://coinpaprika.com/coin/pos-proof-of-stake-coin/) We are applying for MarketCapital self-reporting dashboard. 
+   - [Website  : https://poscoin.community](https://poscoin.community)
+   - [Discord  : https://POSCoin.gg/PQTYqSS8gK](https://POSCoin.gg/PQTYqSS8gK)
+   - [Twiter   : https://twitter.com/scoin800](https://twitter.com/scoin800)
+   - [Telegram : https://t.me/ROI_800_POSCOIN](https://t.me/ROI_800_POSCOIN)   
+   - [Forum    : https://bitcoingarden.org/forum/index.php?topic=51944.0](https://bitcoingarden.org/forum/index.php?topic=51944.0)
+   - [coinpaprika.com](https://coinpaprika.com/coin/pos-proof-of-stake-coin/) We are applying for MarketCapital self-reporting dashboard
 
